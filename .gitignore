@@ -1,0 +1,29 @@
+## Configuration and Temporary files
+app/Config/database.php
+app/tmp/cache/models/*
+app/tmp/cache/persistent/*
+app/tmp/cache/*
+app/tmp/logs/*
+app/tmp/tests/*
+app/files/*
+
+## Simpletest
+vendors/simpletest
+
+## IDE files and folders
+.cache
+.project
+.settings
+nbproject
+.idea
+
+## Allow 'empty' files
+!empty
+
+.DS_Store
+
+## DB
+materia_candy.sql
+app/config/database.local.php
+app/config/database.remote.php
+app/config/database.local.old.php
