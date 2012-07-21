@@ -1,14 +1,11 @@
 ## Configuration and Temporary files
-app/Config/database.php
-app/tmp/cache/models/*
-app/tmp/cache/persistent/*
-app/tmp/cache/*
-app/tmp/logs/*
-app/tmp/tests/*
+app/tmp/*
 app/files/*
+app/Config/database.php
 
 ## Simpletest
 vendors/simpletest
+
 
 ## IDE files and folders
 .cache
@@ -16,14 +13,14 @@ vendors/simpletest
 .settings
 nbproject
 .idea
+.DS_Store
 
 ## Allow 'empty' files
 !empty
 
-.DS_Store
-
-## DB
+## ORIGINAL & DB
 materia_candy.sql
+materia_dev.sql
 app/config/database.local.php
 app/config/database.remote.php
 app/config/database.local.old.php
