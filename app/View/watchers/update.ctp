@@ -1,1 +1,0 @@
-<?php echo $this->Watchers->watcher_link($data, $currentuser); ?>
