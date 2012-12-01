@@ -7,6 +7,7 @@
  * @package candycane
  * @subpackage candycane.views.helpers
  */
+App::uses('AppHelper','View/Helper');
 class CandyHelper extends AppHelper {
 
 /**
@@ -1582,5 +1583,29 @@ function breadcrumb($args)
       $options[$item[$model][$value]] = $item[$model][$text];
     }
     return $options;
+  }
+	
+  public function project_icon($project = null, $as_url = false) {
+
+	  $url = Router::url('/', true) . 'themed/kuma/img/kuma-48-square.png';
+	  if ( isset($project['CustomValue']) && is_array($project['CustomValue']) ) {
+		  foreach ($project['CustomValue'] as $row) {
+			  if ($row['CustomField']['name'] == 'projecticon') {
+				  $url = $row['value'];
+			  }
+		  }
+	  }
+
+	  if ($as_url == true) {
+		  return $url;
+	  }
+	  return $this->Html->image(
+		$url,
+		array(
+//			'fullBase' => true,
+			'class' => 'project-icon',
+			'alt' => 'kuma',
+		)
+	);
   }
 }

@@ -156,8 +156,8 @@ class IssuesController extends AppController {
 		$this->Queries->retrieve_query($this->request->query['query_id']);
 		$limit = $this->_per_page_option();
 		if (empty($this->request->params['named']['sort'])) {
-			$this->request->params['sort'] = 'Issue.id';
-			$this->request->params['direction'] = 'desc';
+			$this->request->params['named']['sort'] = 'Issue.id';
+			$this->request->params['named']['direction'] = 'desc';
 		}
 		$this->paginate = array('Issue' => array(
 			'conditions' => $this->Queries->query_filter_cond,
@@ -377,7 +377,9 @@ class IssuesController extends AppController {
 					'Controller.Candy.issuesNewAfterSave',
 					$this,
 					array(
-						'issue' => $this->Issue
+						'project' => $this->_project,
+						'issue' => $this->Issue,
+						'save_data' => $save_data
 					)
 				);
 				$this->getEventManager()->dispatch($event);
@@ -508,9 +510,33 @@ class IssuesController extends AppController {
               );
         }
       }
-      // call_hook(:controller_issues_edit_before_save, { :params => params, :issue => @issue, :time_entry => @time_entry, :journal => journal})
+	  $event = new CakeEvent(
+		  'Controller.Candy.issuesEditBeforeSave',
+		  $this,
+		  array(
+			'issue' => $this->Issue,
+			'journal' => $journal
+		  )
+	  );
+	  $this->getEventManager()->dispatch($event);
+
+	  
       if($this->Issue->saveAll($save_data)) {
         if($this->Issue->actually_changed) {
+
+		  $event = new CakeEvent(
+			  'Controller.Candy.issuesEditAfterSave',
+				$this,
+				array(
+					'project' => $this->_project,
+					'issue' => $this->Issue,
+					'save_data' => $save_data,
+					'journal' => $journal,
+					'notes' => $notes
+				)
+		  );
+		  $this->getEventManager()->dispatch($event);
+
           # Only send notification if something was actually changed
           $this->Session->setFlash(__('Successful update.'), 'default', array('class'=>'flash flash_notice'));
           $this->Mailer->deliver_issue_edit($journal,$this->Issue);

@@ -109,7 +109,7 @@ class AppModel extends Model {
  */
 	public function beforeSave($options = array()) {
 		$dateFields = array('updated_on');
-		if (!$this->__exists) {
+		if (!isset($this->data[$this->alias][$this->primaryKey])) {
 			$dateFields[] = 'created_on';
 		}
 		if (isset($this->data[$this->alias])) {

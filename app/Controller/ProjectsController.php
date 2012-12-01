@@ -292,25 +292,6 @@ class ProjectsController extends AppController {
 		$parent_project = $this->Project->findById($this->request->data['Project']['parent_id']);
 		$this->set('parent_project', $parent_project);
 
-		$custom_values = $this->CustomValue->find('all', array(
-			'conditions' => array('CustomFieldsProject.project_id' => $this->id),
-			'recursive' => -1,
-			'joins' => array(
-				array(
-					'type'=>'INNER',
-					'table' => 'custom_fields',
-					'alias' => 'CustomField',
-					'conditions'=>'CustomField.id=CustomValue.custom_field_id',
-				),
-				array(
-					'type'=>'INNER',
-					'table' => 'custom_fields_projects',
-					'alias' => 'CustomFieldsProject',
-					'conditions'=>'CustomField.id=CustomFieldsProject.custom_field_id',
-				),
-			),
-		));
-
 		$members_by_role = $this->_get_members_by_role();
 		$this->set('members_by_role', $members_by_role);
 
@@ -387,7 +368,15 @@ class ProjectsController extends AppController {
 
 		$fields = array('name', 'description', 'homepage', 'is_public');
 		$this->request->data['Tracker']['Tracker'] = array_filter($this->request->data['Project']['Tracker']);
-		$this->request->data['CustomField']['CustomField'] = array_filter($this->request->data['Project']['issue_custom_field_ids']);
+		if (
+			isset($this->request->data['Project']['issue_custom_field_ids']) &&
+			is_array($this->request->data['Project']['issue_custom_field_ids'])
+		) {
+			$this->request->data['CustomField']['CustomField'] = array_filter($this->request->data['Project']['issue_custom_field_ids']);
+		}
+		
+		$this->request->data['Project']['custom_field_values'] = $this->request->data['custom_field_values'];
+		
 		if ($this->Project->save($this->request->data, true, $fields)) {
 			$this->Session->setFlash(__('Successful update.'), 'default', array('class' => 'flash notice'));
 			$this->redirect(
@@ -901,7 +890,11 @@ class ProjectsController extends AppController {
         }
       }
     }
-
+	if ( isset($this->request->data['CustomValue']) && is_array($this->request->data['CustomValue']) ) {
+		foreach ( $this->request->data['CustomValue'] as $row) {
+			$this->request->data['custom_field_values'][$row['custom_field_id']] = $row['value']; 
+		}
+	}
 
   }
 #  
@@ -940,6 +933,7 @@ class ProjectsController extends AppController {
     $this->set('root_projects', $root_projects);
 
     $available_project_modules = $this->Permission->available_project_modules();
+	$this->set('available_custom_fields',$this->Project->available_custom_fields());
     $this->set('available_project_modules', $available_project_modules);
 
     // for members tab start
@@ -978,47 +972,15 @@ class ProjectsController extends AppController {
 		)
 	));
     $this->set('versions_data',$versions);
-    
-    
-    //:TODO yando やる
-    $tabs = array(
-      array(
-		  'name' => 'info',
-		  'partial' => 'projects/edit',
-		  'label' =>  __('Information')
-	  ),
-      array(
-		  'name' => 'modules',
-		  'partial' => 'projects/settings/modules',
-		  'label' => __('Modules')
-	  ),
-      array(
-		  'name' => 'members',
-		  'partial' => 'projects/settings/members',
-		  'label' => __('Members')
-	  ),
-      array(
-		  'name' => 'versions',
-		  'partial' => 'projects/settings/versions',
-		  'label' => __('Versions')
-	  ),
-      array(
-		  'name' => 'categories',
-		  'partial' => 'projects/settings/issue_categories',
-		  'label' => __('Issue categories')
-	  ),
-      array(
-		  'name' => 'wiki',
-		  'partial' => 'projects/settings/wiki',
-		  'label' => __('Wiki')
-	  ),
-      );
+
+    $menuContainer = ClassRegistry::getObject('MenuContainer');
+    $tabs = $menuContainer->getProjectSettingMenu();
     $selected_tab = $tabs[0]['name'];
     if (isset( $this->params[ 'url' ]['tab'])) {
       $selected_tab =  $this->params[ 'url' ]['tab'];
     }
     $this->set('selected_tab',$selected_tab);
-    $this->set('tabs', $tabs);  
+    $this->set('tabs', $tabs);
   }
 
   function list_members()
@@ -1072,4 +1034,3 @@ class ProjectsController extends AppController {
 #    end
 #  end
 }
-?>
