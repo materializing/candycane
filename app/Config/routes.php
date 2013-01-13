@@ -14,6 +14,7 @@
 	Router::connect('/logout', array('controller' => 'account', 'action' => 'logout'));
 	Router::connect('/projects/:project_id/issues/:action/*', array('controller' => 'issues'));
 	Router::connect('/projects/:action/:project_id', array('controller' => 'projects'));
+	Router::connect('/projects/:project_id', array('controller' => 'projects', 'action' => 'show'));
 	Router::connect('/projects/:project_id/news/:action', array('controller' => 'news'));
 	Router::connect('/projects/:project_id/news/:action/:id', array('controller' => 'news'));
 	Router::connect('/projects/:project_id/documents/:action/', array('controller' => 'documents'));
@@ -58,6 +59,11 @@ Router::connect('/wikis/:action/:project_id', array('controller' => 'wikis'));
 #  map.connect 'help/:ctrl/:page', :controller => 'help'
 #  #map.connect ':controller/:action/:id/:sort_key/:sort_order'
 #  
+Router::connect(
+  '/issues/:issue_id/*',
+  array('controller' => 'issues', 'action' => 'show'),
+  array('issue_id' => '[0-9]+')
+);
 Router::connect('/issues/:action', array('controller' => 'issues'));
 Router::connect('/issues/:action/:issue_id/*', array('controller' => 'issues'));
 
@@ -110,6 +116,8 @@ Router::connect('/queries/:action/:query_id',array('controller' => 'queries'));
  * developement.
  */
 	Router::connect('/tests', array('controller' => 'tests', 'action' => 'index'));
+
+  Router::parseExtensions('xml', 'json');
 
 /**
  * Load all plugin routes.  See the CakePlugin documentation on 
