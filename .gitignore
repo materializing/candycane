@@ -2,6 +2,7 @@
 app/tmp/*
 app/files/*
 app/Config/database.php
+app/Config/email.php
 
 ## Simpletest
 vendors/simpletest
@@ -18,9 +19,5 @@ nbproject
 ## Allow 'empty' files
 !empty
 
-## ORIGINAL & DB
-materia_candy.sql
-materia_dev.sql
-app/config/database.local.php
-app/config/database.remote.php
-app/config/database.local.old.php
+## Locale files
+*.mo

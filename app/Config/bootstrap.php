@@ -1,5 +1,5 @@
 <?php
-define('CANDYCANE_VERSION', '0.9.0');
+define('CANDYCANE_VERSION', '0.9.1');
 Configure::write('app_title', 'Candycane');
 setlocale(LC_CTYPE,'C');
 
@@ -26,7 +26,12 @@ ClassRegistry::addObject('MenuContainer',$menu_container);
 ClassRegistry::addObject('PluginContainer',$pluginContainer);
 ClassRegistry::addObject('SettingContainer',$settingContainer);
 ClassRegistry::addObject('ThemeContainer',$themeContainer);
-foreach( glob(APP.'Plugin/Cc*/init.php') as $val){
+
+$pluginPaths = glob(APP.'Plugin/Cc*/init.php');
+if ($pluginPaths === false) {
+    $pluginPaths = array();
+}
+foreach( $pluginPaths as $val){
 	include_once(realpath($val));
 }
 

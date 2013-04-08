@@ -754,7 +754,11 @@ class IssuesController extends AppController {
 				$this->layout = 'ajax';
 				return;
 			}
-			$this->redirect('/projects/'.$this->_project['Project']['identifier'].'/issues');
+			$this->redirect(array(
+			    'controller' => 'issues',
+			    'project_id' => $this->_project['Project']['identifier'],
+			    'action' => 'index'
+			    ));
 		} elseif ($this->RequestHandler->isAjax() && !empty($this->request->data['Issue']['project_id'])) {
 			if (!array_key_exists($this->request->data['Issue']['project_id'], $allowed_projects)) {
 				$this->request->data['Issue']['project_id'] = $issues[0]['Issue']['project_id'];
@@ -780,8 +784,8 @@ class IssuesController extends AppController {
 		$issue_ids = false;
 		if (!empty($this->request->params['issue_id'])) {
 			$issue_ids = $this->request->params['issue_id'];
-		} elseif (!empty($this->request->params['url']['ids'])) {
-			$issue_ids = $this->request->params['url']['ids'];
+		} elseif (!empty($this->request->query['ids'])) {
+			$issue_ids = $this->request->query['ids'];
 		} elseif (!empty($this->request->data['Issue']['ids'])) {
 			$issue_ids = $this->request->data['Issue']['ids'];
 		} else {

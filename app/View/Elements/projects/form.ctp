@@ -30,7 +30,8 @@
 <%= wikitoolbar_for 'project_description' %>
  */ ?>
 <?php
-foreach ($available_custom_fields as $field):
+if (isset($available_custom_fields)):
+  foreach ($available_custom_fields as $field):
 ?>
 <p>
 <?php
@@ -38,7 +39,8 @@ foreach ($available_custom_fields as $field):
   echo $this->CustomField->custom_field_tag($field['CustomField']['name'],$field);
 ?></p>
 <?php
-endforeach;
+  endforeach;
+endif;
 #<% @project.custom_field_values.each do |value| %>
 #	<p><%= custom_field_tag_with_label :project, value %></p>
 #<% end %>
@@ -55,7 +57,7 @@ endforeach;
 ?>
 <fieldset class="box"><legend><?php echo __('Trackers') ?></legend>
 <?php foreach($trackers as $tracker): ?>
-    <label class="floating">
+    <label class="floating" for="<?php echo $tracker['Tracker']['id']; ?>">
 <?php
     $checked = "";
     if ( in_array($tracker['Tracker']['id'],$checked_trackers) ) {
@@ -66,7 +68,8 @@ endforeach;
                         'value'=>$tracker['Tracker']['id'],
                         'checked' => $checked,
                         'label'=>false,
-                        'div' => false
+                        'div' => false,
+                        'id' => $tracker['Tracker']['id']
                       )) ?>
 <?php echo h($tracker['Tracker']['name']); ?>
 <?php /*
