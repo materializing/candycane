@@ -23,8 +23,8 @@ nbproject
 *.mo
 
 ## ORIGINAL & DB
-materia_candy.sql
-materia_dev.sql
+_assets
+_assets/*
 app/config/database.local.php
 app/config/database.remote.php
 app/config/database.local.old.php
