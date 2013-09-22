@@ -1,4 +1,7 @@
 <?php
+
+App::Import('vendor', 'georgious-cakephp-yaml-migrations-and-fixtures/spyc/spyc');
+
 class Query extends AppModel
 {
   var $name = 'Query';
@@ -26,7 +29,7 @@ class Query extends AppModel
   var $available_filters;
   var $filters = array();
   
-  function __construct()
+  public function __construct($id = false, $table = null, $ds = null)
   {
     if (!$this->operators) {
       $this->operators = array(
@@ -71,7 +74,7 @@ class Query extends AppModel
         ),
       );
     }
-    parent::__construct();
+    parent::__construct($id, $table, $ds);
   }
   
   function available_filters($project = array(), $currentuser = array())

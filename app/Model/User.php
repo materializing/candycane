@@ -204,7 +204,7 @@ class User extends AppModel {
   function rss_key($user_id) {
     $token = $this->RssToken->find('first', array('conditions'=>array('action'=>'feeds', 'user_id'=>$user_id), 'fields'=>array('value')));
     // TODO �Ȃ�������쐬����B
-    return $token['RssToken']['value'];
+    return Hash::get($token, 'RssToken.value');
   }
 #  
 #  # Return an array of project ids for which the user has explicitly turned mail notifications on
@@ -368,7 +368,11 @@ class User extends AppModel {
    */
   var $_map_role = array();
   function is_allowed_to($user, $action, $project, $options=array()) {
-    if(!empty($project)) {
+      if ( !is_array($project) ) {
+        $Project = ClassRegistry::init('Project');
+        $project = $Project->findById($project);
+      }
+      if(!empty($project)) {
       $Project = & ClassRegistry::init('Project');
       # No action allowed on archived projects
       if(!$Project->is_active($project)) return false;
@@ -412,7 +416,16 @@ class User extends AppModel {
   function anonymous() {
     $anonymous_user = $this->find('first', array('conditions'=>array('status'=>USER_STATUS_ANONYMOUS)));
     if (empty($anonymous_user)) {
-      $anonymous_user = array('User'=>array('lastname' => 'Anonymous', 'firstname' => '', 'mail' => '', 'login' => '', 'status' => 0));
+      $anonymous_user = array(
+          'User'=>array(
+              'id' => '',
+              'lastname' => 'Anonymous',
+              'firstname' => '',
+              'mail' => '',
+              'login' => '',
+              'status' => 0,
+              'admin' => false
+          ));
     }
     return $anonymous_user;
   }

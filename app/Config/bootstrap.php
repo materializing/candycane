@@ -1,8 +1,11 @@
 <?php
-define('CANDYCANE_VERSION', '0.9.1');
+define('CANDYCANE_VERSION', '0.9.3');
 Configure::write('app_title', 'Candycane');
 setlocale(LC_CTYPE,'C');
 
+if ( file_exists('../../vendor/autoload.php')) {
+    include_once '../../vendor/autoload.php';
+}
 App::import('Vendor','candycane/MenuContainer');
 App::import('Vendor','candycane/HookContainer');
 App::import('Vendor','candycane/PluginContainer');
@@ -35,6 +38,24 @@ foreach( $pluginPaths as $val){
 	include_once(realpath($val));
 }
 
+// Enable the Dispatcher filters for plugin assets, and
+// CacheHelper.
+Configure::write('Dispatcher.filters', array(
+    'AssetDispatcher',
+    'CacheDispatcher'
+));
+
+// Add logging configuration.
+CakeLog::config('debug', array(
+    'engine' => 'FileLog',
+    'types' => array('notice', 'info', 'debug'),
+    'file' => 'debug',
+));
+CakeLog::config('error', array(
+    'engine' => 'FileLog',
+    'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
+    'file' => 'error',
+));
 
 // by PHP_Compat 1.6.0a2
 function php_compat_http_build_query($formdata, $numeric_prefix = null)

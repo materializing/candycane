@@ -90,35 +90,39 @@ class CandyHelper extends AppHelper {
 		call_user_func_array(array($this, 'lwr_e'), $argv);
 	}
 
-/**
- * Html Title
- *
- * @param array $str Strings to display
- * @return string
- */
-	public function html_title($str = false) {
-		$view = $this->_View;
-		$project = isset($view->viewVars['main_project']) ? $view->viewVars['main_project'] : null;
-		if (empty($str)) {
-			$title = array();
-			if (! empty($project)) {
-				$title[0] = $project['Project']['name'];
-			} else {
-				$Settings =& ClassRegistry::getObject('Setting');
-				$title[0] = $Settings->app_title;
-			}
-			if (!empty($view->pageTitle)) {
-				$title[0] .= $view->pageTitle;
-			}
-			$title = join(' - ', $title);
-			$str = $view->pageTitle = $title;
-		} elseif(is_array($str)) {
-			$str = join(' - ', $str);
-		}
-		$view->set('title_for_layout',$str);
-		$view->pageTitle = $str;
-		return $view->pageTitle;
-	}
+    /**
+     * Html Title
+     *
+     * @param array $str Strings to display
+     * @return string
+     */
+    public function html_title($str = false) {
+        $view = $this->_View;
+        $project = isset($view->viewVars['main_project']) ? $view->viewVars['main_project'] : null;
+
+        if (is_array($str)) {
+            $view->pageTitle = implode(' - ', $str);
+        } else {
+            $view->pageTitle = $str;
+        }
+
+        if (!is_array($str)) {
+            $title = Hash::merge(array(), $str);
+
+            if (!empty($project)) {
+                $title[] = $project['Project']['name'];
+            }
+
+            $Settings =& ClassRegistry::getObject('Setting');
+            $title[] = $Settings->app_title;
+
+            $str = implode(' - ', $title);
+        }
+
+        $view->set('title_for_layout',$str);
+
+        return $view->pageTitle;
+    }
 
 #require 'coderay'
 #require 'coderay/helpers/file_type'
@@ -148,7 +152,8 @@ class CandyHelper extends AppHelper {
 			$view = $this->_View;
 			$project = $view->viewVars['main_project'];
 		}
-		return $this->requestAction(
+        $project = $project['Project']['id'];
+  		return $this->requestAction(
 			array(
 				'controller' => 'users',
 				'action' => 'allowed_to'
@@ -1296,7 +1301,7 @@ function breadcrumb($args)
 			'eng' => 'English',
 			'esp' => 'Español',
 			//fi 'Finnish (Suomi)'
-			'fre' => 'Français',
+			'fra' => 'Français',
 			//he 'Hebrew (עברית)'
 			//hu 'Magyar'
 			//it 'Italiano'
@@ -1308,7 +1313,7 @@ function breadcrumb($args)
 			//pl 'Polski'
 			'bra' => 'Português(Brasil)',
 			//pt 'Português'
-			'rum' => 'Română',
+			'ron' => 'Română',
 			'rus' => 'Russian (Русский)',
 			//sk 'Slovensky'
 			//sr 'Srpski'

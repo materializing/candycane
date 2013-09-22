@@ -12,6 +12,7 @@ vendors/simpletest
 .cache
 .project
 .settings
+.buildpath
 nbproject
 .idea
 .DS_Store
@@ -21,6 +22,13 @@ nbproject
 
 ## Locale files
 *.mo
+
+## Composer
+composer.phar
+vendor
+
+## build artifacts
+build
 
 ## ORIGINAL & DB
 _assets

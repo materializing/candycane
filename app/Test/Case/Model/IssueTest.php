@@ -1,19 +1,24 @@
-<?php 
+<?php
 class IssueTest extends CakeTestCase {
-  var $Issue = null;
-  var $autoFixtures = false;
-  var $fixtures = array(
+    protected $Issue = null;
+    protected $IssueRelation = null;
+
+    public $autoFixtures = false;
+    var $fixtures = array(
       'app.issue', 'app.project', 'app.tracker', 'app.issue_status', 'app.user', 'app.version',
       'app.enumeration', 'app.issue_category', 'app.token', 'app.member', 'app.role', 'app.user_preference',
       'app.enabled_module', 'app.issue_category', 'app.time_entry', 'app.changeset', 'app.changesets_issue', 'app.attachment',
       'app.projects_tracker', 'app.custom_value', 'app.custom_field', 'app.custom_fields_project', 'app.watcher', 'app.issue_relation',
       'app.journal', 'app.journal_detail', 'app.workflow',
-      'app.wiki', 'app.wiki_page', 'app.wiki_content', 'app.wiki_content_version', 'app.wiki_redirect','app.workflow'
+      'app.wiki', 'app.wiki_page', 'app.wiki_content', 'app.wiki_content_version', 'app.wiki_redirect','app.workflow',
+      'app.setting',
       );
 
-  function startTest() {
-    $this->Issue =& ClassRegistry::init('Issue');
-  }
+    public function startTest()
+    {
+        $this->Issue = ClassRegistry::init('Issue');
+        $this->IssueRelation = ClassRegistry::init('IssueRelation');
+    }
 
   function test_create() {
     $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'ChangesetsIssue', 'Watcher','CustomValue','CustomField','IssueRelation');
@@ -31,6 +36,7 @@ class IssueTest extends CakeTestCase {
     $this->assertNotEmpty($this->Issue->save());
     $this->Issue->read(null, $this->Issue->getLastInsertID());
     $this->assertEqual(1.5, $this->Issue->data['Issue']['estimated_hours']);
+    $this->assertNotEmpty($this->Issue->data['Issue']['created_on']);
   }
   function test_create_minimal() {
     $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'ChangesetsIssue', 'Watcher');
@@ -47,7 +53,27 @@ class IssueTest extends CakeTestCase {
     $this->assertNull($this->Issue->data['Issue']['description']);
   }
 
-  function test_create_with_required_custom_field() {
+    function test_create_extra() {
+        $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'ChangesetsIssue', 'Watcher');
+        $priorities = $this->Issue->Priority->get_values('IPRI');
+        $this->Issue->create();
+        $this->Issue->set(array(
+                'project_id' => 1,
+                'tracker_id' => 1,
+                'author_id' => 3,
+                'status_id' => 1,
+                'priority_id' => $priorities[0]['Priority']['id'],
+                'subject' => 'test_create',
+                'posttofacebook' => '1'
+            ));
+        $this->assertNotEmpty($this->Issue->save());
+        $this->Issue->read(null, $this->Issue->getLastInsertID());
+        $this->assertNull($this->Issue->data['Issue']['description']);
+        $this->assertNotEmpty($this->Issue->data['Issue']['created_on']);
+
+    }
+
+    function test_create_with_required_custom_field() {
     $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'CustomField', 'CustomValue', 'CustomFieldsProject', 'ChangesetsIssue', 'Watcher');
     $IssueCustomField = & ClassRegistry::init('CustomField');
     $field = $IssueCustomField->findByName('Database');
@@ -312,7 +338,7 @@ class IssueTest extends CakeTestCase {
   }
 
   function test_move_to_another_project_with_same_category() {
-    $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'CustomField', 'CustomValue', 'IssueRelation', 'Journal', 'JournalDetail', 'ChangesetsIssue', 'Watcher');
+    $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'CustomField', 'CustomValue', 'IssueRelation', 'Journal', 'JournalDetail', 'ChangesetsIssue', 'Watcher', 'Setting');
     $Setting =& ClassRegistry::init('Setting');
     $this->Issue->read(null, 1);
     $this->assertTrue($this->Issue->move_to($Setting, $this->Issue->data, 2));
@@ -325,7 +351,7 @@ class IssueTest extends CakeTestCase {
   }
 
   function test_move_to_another_project_without_same_category() {
-    $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'CustomField', 'CustomValue', 'IssueRelation', 'Journal', 'JournalDetail', 'ChangesetsIssue', 'Watcher');
+    $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'CustomField', 'CustomValue', 'IssueRelation', 'Journal', 'JournalDetail', 'ChangesetsIssue', 'Watcher', 'Setting');
     $Setting =& ClassRegistry::init('Setting');
     $this->Issue->read(null, 2);
     $this->assertTrue($this->Issue->move_to($Setting, $this->Issue->data, 2));
@@ -339,14 +365,14 @@ class IssueTest extends CakeTestCase {
     $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'CustomField', 'CustomValue', 'IssueRelation', 'Journal', 'JournalDetail', 'ChangesetsIssue', 'Watcher');
     $this->Issue->read(null, 1);
     $this->Issue->delete();
-    $this->assertFalse($this->Issue->read(null, 1));
-    $this->assertFalse($this->Issue->TimeEntry->findByIssueId(1));
+    $this->assertEquals($this->Issue->read(null, 1), array());
+    $this->assertEquals($this->Issue->TimeEntry->findByIssueId(1), array());
   }
 
   function test_overdue() {
-    $this->assertTrue($this->Issue->is_overdue(array('Issue'=>array('due_date' => date('Y-m-d H:m:s', strtotime('-1 days'))))));
+    $this->assertTrue($this->Issue->is_overdue(array('Issue'=>array('due_date' => date('Y-m-d H:i:s', strtotime('-1 days'))))));
 //    $this->assertFalse($this->Issue->is_overdue(array('Issue'=>array('due_date' => date('Y-m-d')))));
-    $this->assertFalse($this->Issue->is_overdue(array('Issue'=>array('due_date' => date('Y-m-d H:m:s', strtotime('+1 days'))))));
+    $this->assertFalse($this->Issue->is_overdue(array('Issue'=>array('due_date' => date('Y-m-d H:i:s', strtotime('+1 days'))))));
     $this->assertFalse($this->Issue->is_overdue(array('Issue'=>array('due_date' => null))));
   }
 
@@ -426,6 +452,85 @@ class IssueTest extends CakeTestCase {
     $this->assertEqual(7, $default);
   }
 
+    protected function setupRelation($options = null)
+    {
+        $description = $options['description'];
+        $due_date = $options['due_date'];
+        $delay = $options['delay'];
+        $relation_type = $options['relation_type'];
 
+        $priorities = $this->Issue->Priority->get_values('IPRI');
+        $date_fmt = 'Y-m-d H:i:s';
+      
+        $data = array(
+            'project_id' => 1, 
+            'tracker_id' => 1, 
+            'author_id' => 1, 
+            'status_id' => 1, 
+            'priority_id' => $priorities[0]['Priority']['id'], 
+            'subject' => 'Relation test', 
+            'description' => $description,
+            'due_date' => $due_date->format($date_fmt),
+            );
+        $this->Issue->create();
+        $this->assertNotEmpty($this->Issue->save($data));
+        $issue1 = $this->Issue->getLastInsertID();
+        $this->Issue->create();
+        $this->assertNotEmpty($this->Issue->save($data));
+        $issue2 = $this->Issue->getLastInsertID();
+
+        $this->IssueRelation->create();
+        $result = $this->IssueRelation->save(array(
+                                                 'issue_from_id' => $issue2,
+                                                 'issue_to_id' => $issue1,
+                                                 'relation_type' => $relation_type,
+                                                 'delay' => $delay,
+                                                 ));
+        $issue_rel = $this->IssueRelation->getLastInsertID();
+        $this->assertNotEqual($result, false);
+        return compact('issue1', 'issue2', 'issue_rel', 'date_fmt');
+    }
+
+    public function testFindRelations()
+    {
+        $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'ChangesetsIssue', 'Watcher','CustomValue','CustomField','IssueRelation');
+        $setupopt = array(
+            'description' =>__CLASS__ . '#' . __METHOD__,
+            'due_date' => new DateTime,
+            'relation_type' => ISSUERELATION_TYPE_RELATES,
+            'delay' => 1,
+            );
+        $vals = $this->setupRelation($setupopt);
+        // $issue1, $issue2, $issue_rel, $date_fmt are extracted
+        extract($vals);
+
+        $issue = $this->Issue->findById($issue1);
+        $this->assertNotEmpty($issue);
+        $relation = $this->IssueRelation->findRelations($issue);
+        $this->assertNotEmpty($relation);
+        $relitem = $relation[0];
+        $this->assertEqual($relitem['IssueFrom']['Issue']['id'], $issue2);
+        $this->assertEqual($relitem['IssueTo']['Issue']['id'], $issue1);
+        $this->assertEqual($relitem['IssueRelation']['issue_from_id'], $issue2);
+        $this->assertEqual($relitem['IssueRelation']['issue_to_id'], $issue1);
+        $this->assertEqual($relitem['IssueRelation']['relation_type'],
+                           ISSUERELATION_TYPE_RELATES);
+    }
+
+    public function testRelationPrecedes()
+    {
+        $this->loadFixtures('Issue', 'Project', 'Tracker', 'IssueStatus', 'User', 'Version', 'Enumeration', 'IssueCategory', 'TimeEntry', 'Changeset', 'ChangesetsIssue', 'Watcher','CustomValue','CustomField','IssueRelation');
+        $setupopt = array(
+            'description' =>__CLASS__ . '#' . __METHOD__,
+            'due_date' => new DateTime,
+            'relation_type' => ISSUERELATION_TYPE_RELATES,
+//            'relation_type' => ISSUERELATION_TYPE_PRECEDES,
+            'delay' => 1,
+            );
+        $vals = $this->setupRelation($setupopt);
+        // $issue1, $issue2, $issue_rel, $date_fmt are extracted
+        extract($vals);
+
+        $relitem = $this->IssueRelation->findById($issue_rel);
+    }
 }
-?>

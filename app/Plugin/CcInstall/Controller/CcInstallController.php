@@ -56,7 +56,7 @@ class CcInstallController extends CcInstallAppController {
  * @return void
  */
     function index() {
-        $this->pageTitle = __('Installation: Welcome');
+        $this->set('pageTitle', __('Installation: Welcome'));
 		$url = Router::url(array(
 			'plugin' => 'cc_install',
 			'controller' => 'cc_install',
@@ -64,6 +64,9 @@ class CcInstallController extends CcInstallAppController {
 			),
 			true
 		);
+		if(isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] === 'Basic'){
+			$url = str_replace('://', '://' . $_SERVER['PHP_AUTH_USER'] . ':' . $_SERVER['PHP_AUTH_PW'] . '@', $url);
+		}
 		$file = json_decode(file_get_contents($url),true);
 		$this->set('file',$file);
     }
@@ -78,7 +81,7 @@ class CcInstallController extends CcInstallAppController {
  * @return void
  */
     function database() {
-        $this->pageTitle = __('Step 1: Database');
+        $this->set('pageTitle', __('Step 1: Database'));
         if (!empty($this->data)) {
 			$check = false;
 
@@ -139,7 +142,7 @@ class CcInstallController extends CcInstallAppController {
  * @return void
  */
     function data() {
-        $this->pageTitle = __('Step 2: Run SQL');
+        $this->set('pageTitle', __('Step 2: Run SQL'));
         //App::import('Core', 'Model');
         //$Model = new Model;
 
@@ -168,7 +171,7 @@ class CcInstallController extends CcInstallAppController {
  * @return void
  */
     function finish() {
-        $this->pageTitle = __('Installation completed successfully');
+        $this->set('pageTitle', __('Installation completed successfully'));
         if (isset($this->params['named']['delete'])) {
             App::uses('Folder', 'Utility');
             $this->folder = new Folder;

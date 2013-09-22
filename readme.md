@@ -4,9 +4,10 @@ CandyCane is a issue tracking system. The original implementation on which it is
 
 You can view a live demo of CandyCane, as well as the bug tracking for CandyCane here: [http://my.candycane.jp/](http://my.candycane.jp/)
 
-Continuous Integration is running on here: [https://travis-ci.org/yandod/candycane](https://travis-ci.org/yandod/candycane)
+* Continuous Integration is running on here: [https://travis-ci.org/yandod/candycane](https://travis-ci.org/yandod/candycane)
 [![Build Status](https://travis-ci.org/yandod/candycane.png?branch=master)](https://travis-ci.org/yandod/candycane)
-
+* Coverage report is genrated at Coverall [![Coverage Status](https://coveralls.io/repos/yandod/candycane/badge.png?branch=master)](https://coveralls.io/r/yandod/candycane)
+* versioneye [![Dependency Status](https://www.versioneye.com/user/projects/51f0855e632bac469f03892f/badge.png)](https://www.versioneye.com/user/projects/51f0855e632bac469f03892f)
 
 ## Installation ##
 
@@ -19,6 +20,19 @@ Continuous Integration is running on here: [https://travis-ci.org/yandod/candyca
 3. Access the site via your web server. If you installed into a subdirectory, then ensure that directory is in your URL: http://mysite.com/candycane
 4. The step-by-step installer will appear.
 5. Just use it!
+
+## Development setup ##
+
+1. Install Vagrant and VirtualBox.
+2. Download candycane box
+	`vagrant box add candycane {url}`
+3. just type `vagrant up`
+4. ssh into vm
+	`vagrant ssh`
+5. cd to app
+	`cd /vagrant_data/app`
+6. run test
+	`./Console/cake test app All`
 
 ## Updating to latest version ##
 
@@ -38,7 +52,7 @@ Currently some features which are present in Redmine are not supported by CandyC
 - Forum
 - Documents
 
-CandyCane is using CakePHP v2.1.
+CandyCane is using CakePHP v2.3.
 
 
 ## Contributors

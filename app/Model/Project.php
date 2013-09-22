@@ -261,7 +261,7 @@ class Project extends AppModel {
 		if (empty($user)) {
 			return $this->cakeError('error', "Argument Exception.");
 		}
-		if ($user['admin']) {
+		if (isset($user['admin']) && $user['admin']) {
 			return array('Project.status' => PROJECT_STATUS_ACTIVE);
 		} elseif (!empty($user['memberships'])) {
 			$allowed_project_ids = array();
@@ -331,7 +331,7 @@ class Project extends AppModel {
       $emName = $perm['project_module'];
 
 			$ds = $this->getDataSource();
-      $base_statement[] = array("EXISTS (SELECT em.id FROM {$enabledModuleTable} em WHERE em.name='{$emName}' AND em.project_id = {$ds->startQuote}{$projectTable}{$ds->endQuote}.{$ds->startQuote}id{$ds->endQuote})" => true);
+      $base_statement[] = array("EXISTS (SELECT em.id FROM {$enabledModuleTable} em WHERE em.name='{$emName}' AND em.project_id = {$ds->startQuote}{$projectTable}{$ds->endQuote}.{$ds->startQuote}id{$ds->endQuote})");
     }
     if(!empty($options['project'])) {
       $project_statement = array();
@@ -342,7 +342,7 @@ class Project extends AppModel {
       }
       $base_statement = array('and' => array($project_statement, $base_statement));
     }
-    if($user['admin']) {
+    if(isset($user['admin']) && $user['admin']) {
       # no restriction
     } else {
       $role = & ClassRegistry::init('Role');
