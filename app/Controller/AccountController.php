@@ -261,21 +261,19 @@ class AccountController extends AppController
      */
     public function show($id)
     {
-        $id = (int)$id;
-
         $user = $this->User->find('first',
             array(
                 'conditions' => array('User.id' => $id),
                 'recursive' => 2)
         );
 
-        if (!is_array($user)) {
-            $this->cakeError('error', array('message' => "user id {$id} not found."));
+        if (!is_array($user) || empty($user)) {
+            throw new CakeException("user id {$id} not found.", 404);
         }
 
         $this->set('user', $user);
         #@custom_values = @user.custom_values
-        $this->Fetcher->fetch($this->current_user, array('author' => $user['User']['id']));
+        $this->Fetcher->fetch($this->current_user, array('author' => $user['User']));
         $events = $this->Fetcher->events(null, null, array('limit' => 10));
         $events_by_day_data = $this->Event->group_by($events, 'event_date');
         $this->set('events_by_day_data', $events_by_day_data);
