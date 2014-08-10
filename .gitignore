@@ -29,3 +29,10 @@ vendor
 
 ## build artifacts
 build
+
+## ORIGINAL & DB
+_assets
+_assets/*
+app/config/database.local.php
+app/config/database.remote.php
+app/config/database.local.old.php

@@ -1,9 +1,5 @@
 <?php
-$Setting = ClassRegistry::getObject('Setting');
-if ($Setting) {
-  $ui = $Setting->ui_theme;
-}
-
+$ui = ClassRegistry::getObject('Setting')->ui_theme;
 if ( !empty( $ui ) )
 {
 	$css = '/themed/' . $ui . '/css/application.css';

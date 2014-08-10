@@ -706,3 +706,76 @@ h2 img { vertical-align:middle; }
   #main { background: #fff; }
   #content { width: 99%; margin: 0; padding: 0; border: 0; background: #fff; overflow: visible !important;}
 }
+
+tr.odd.priority-5, table.list tbody tr.odd.priority-5:hover { color: #900; font-weight: bold; }
+tr.odd.priority-5 { background: #ffc4c4; }
+tr.even.priority-5, table.list tbody tr.even.priority-5:hover { color: #900; font-weight: bold; }
+tr.even.priority-5 { background: #ffd4d4; }
+tr.priority-5 a, tr.priority-5:hover a { color: #900; }
+tr.odd.priority-5 td, tr.even.priority-5 td { border-color: #ffb4b4; }
+
+tr.odd.priority-4, table.list tbody tr.odd.priority-4:hover { color: #900; }
+tr.odd.priority-4 { background: #ffc4c4; }
+tr.even.priority-4, table.list tbody tr.even.priority-4:hover { color: #900; }
+tr.even.priority-4 { background: #ffd4d4; }
+tr.priority-4 a { color: #900; }
+tr.odd.priority-4 td, tr.even.priority-4 td { border-color: #ffb4b4; }
+
+tr.odd.priority-3, table.list tbody tr.odd.priority-3:hover { color: #900; }
+tr.odd.priority-3 { background: #fee; }
+tr.even.priority-3, table.list tbody tr.even.priority-3:hover { color: #900; }
+tr.even.priority-3 { background: #fff2f2; }
+tr.priority-3 a { color: #900; }
+tr.odd.priority-3 td, tr.even.priority-3 td { border-color: #fcc; }
+
+tr.odd.priority-1, table.list tbody tr.odd.priority-1:hover { color: #559; }
+tr.odd.priority-1 { background: #eaf7ff; }
+tr.even.priority-1, table.list tbody tr.even.priority-1:hover { color: #559; }
+tr.even.priority-1 { background: #f2faff; }
+tr.priority-1 a { color: #559; }
+tr.odd.priority-1 td, tr.even.priority-1 td { border-color: #add7f3; }
+
+/* yellow style ステータス：担当 */ 
+tr.odd.status-2 { background: #ffe; }
+tr.even.status-2 { background: #fffff2; }
+tr.odd.status-2 td, tr.even.status-2 td { border-color: #ffc; }
+tr.status-2 td.status { /*color: #990;*/ }
+/* green style */
+tr.odd.status-3 {
+	background: #efe;
+	font-weight: normal;
+}
+tr.even.status-3 {
+	background: #f2fff2;
+	font-weight: normal;
+}
+tr.odd.status-3 td, tr.even.status-3 td { border-color: #cfc; }
+tr.status-3 td.status { /*color: #090;*/ }
+
+/* purple style ステータス：解決 */
+tr.odd.status-4 { background: #fef; }
+tr.even.status-4 { background: #fff2ff; }
+tr.odd.status-4 td, tr.even.status-4 td { border-color: #fcf; }
+tr.status-4 td.status { color: #909; }
+
+/* ステータス：終了 */
+tr.odd.status-5 {
+	background: #ccc;
+	color: #484848;
+}
+tr.even.status-5 {
+	background: #ccc;
+	color: #484848;
+}
+tr.odd status-5 td.subject {
+	color: #484848;
+}
+tr.even status-5 td.subject {
+	color: #484848;
+}
+tr.status-5 a {
+	color: #484848;
+}
+/*tr.odd.status-4 td, tr.even.status-4 td { border-color: #fcf; }
+tr.status-4 td.status { color: #909; }
+*/
