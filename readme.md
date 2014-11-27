@@ -24,15 +24,28 @@ You can view a live demo of CandyCane, as well as the bug tracking for CandyCane
 ## Development setup ##
 
 1. Install Vagrant and VirtualBox.
-2. Download candycane box
+2. Install vagrant-berkshelf plugin.
+	`vagrant plugin install vagrant-berkshelf`
+3. Download candycane box
 	`vagrant box add candycane {url}`
-3. just type `vagrant up`
-4. ssh into vm
+4. just type `vagrant up`
+5. ssh into vm
 	`vagrant ssh`
-5. cd to app
+6. cd to app
 	`cd /vagrant_data/app`
-6. run test
+7. run test
 	`./Console/cake test app All`
+8. run selenium test
+
+```
+vagrant ssh
+cd /vagrant_data/
+/usr/bin/Xvfb :1 -screen 0 1024x768x8 > /tmp/xvfb.log 2> /tmp/xvfb.error &
+export DISPLAY=:1.0
+java -jar /var/chef/cache/selenium-server-standalone-2.39.0.jar > /tmp/selenium.log 2> /tmp/selenium.error &
+mysql -u root -e "drop database if exists test_candycane;create database test_candycane;"
+./vendor/bin/phpunit app/Test/Case/Selenium/InstallerTest.php
+```
 
 ## Updating to latest version ##
 

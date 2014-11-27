@@ -61,14 +61,9 @@ class CcInstallController extends CcInstallAppController {
 			'plugin' => 'cc_install',
 			'controller' => 'cc_install',
 			'action' => 'route'
-			),
-			true
+			)
 		);
-		if(isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] === 'Basic'){
-			$url = str_replace('://', '://' . $_SERVER['PHP_AUTH_USER'] . ':' . $_SERVER['PHP_AUTH_PW'] . '@', $url);
-		}
-		$file = json_decode(file_get_contents($url),true);
-		$this->set('file',$file);
+		$this->set('route_url',$url);
     }
 
 	function route() {
@@ -82,24 +77,24 @@ class CcInstallController extends CcInstallAppController {
  */
     function database() {
         $this->set('pageTitle', __('Step 1: Database'));
-        if (!empty($this->data)) {
+        if (!empty($this->request->data)) {
 			$check = false;
 
             // split host information
-            $hostinfo =  explode(':', $this->data['Install']['host'], 2);
+            $hostinfo =  explode(':', $this->request->data['Install']['host'], 2);
             $host = $hostinfo[0];
             $port = '';
             if (count($hostinfo) >= 2) {
                 $port = $hostinfo[1];
             }
 
-			if ($this->data['Install']['datasource'] === 'mysql' && 
-				mysql_connect($this->data['Install']['host'], $this->data['Install']['login'], $this->data['Install']['password']) &&
-                mysql_select_db($this->data['Install']['database'])) {
+			if ($this->request->data['Install']['datasource'] === 'mysql' &&
+				mysql_connect($this->request->data['Install']['host'], $this->request->data['Install']['login'], $this->request->data['Install']['password']) &&
+                mysql_select_db($this->request->data['Install']['database'])) {
 				$check = true ;
-			} else if ($this->data['Install']['datasource'] === 'postgres') {
+			} else if ($this->request->data['Install']['datasource'] === 'postgres') {
 				$port = (empty($port))?'5432':$port;
-				if (pg_connect("host={$host} port={$port} dbname={$this->data['Install']['database']} user={$this->data['Install']['login']} password={$this->data['Install']['password']}") ) {
+				if (pg_connect("host={$host} port={$port} dbname={$this->request->data['Install']['database']} user={$this->request->data['Install']['login']} password={$this->request->data['Install']['password']}") ) {
 					$check = true ;
 				}
 			}
@@ -113,18 +108,18 @@ class CcInstallController extends CcInstallAppController {
                 App::uses('File', 'Utility');
                 $file = new File(APP.'Config'.DS.'database.php', true);
                 $content = $file->read();
-                
-				$driver = 'Database/'.ucfirst($this->data['Install']['datasource']);
-				
+
+				$driver = 'Database/'.ucfirst($this->request->data['Install']['datasource']);
+
                 // write database.php file
                 $content = str_replace('{default_datasource}', $driver, $content);
                 $content = str_replace('{default_host}', $host, $content);
                 $content = str_replace('{default_port}', $port, $content);
-                $content = str_replace('{default_login}', $this->data['Install']['login'], $content);
-                $content = str_replace('{default_password}', $this->data['Install']['password'], $content);
-                $content = str_replace('{default_database}', $this->data['Install']['database'], $content);
+                $content = str_replace('{default_login}', $this->request->data['Install']['login'], $content);
+                $content = str_replace('{default_password}', $this->request->data['Install']['password'], $content);
+                $content = str_replace('{default_database}', $this->request->data['Install']['database'], $content);
                 // The database import script does not support prefixes at this point
-                $content = str_replace('{default_prefix}', ''/*$this->data['Install']['prefix']*/, $content);
+                $content = str_replace('{default_prefix}', $this->data['Install']['prefix'], $content);
                 
                 if($file->write($content) ) {
                     $this->redirect(array('action' => 'data'));
@@ -155,11 +150,32 @@ class CcInstallController extends CcInstallAppController {
                 $this->Session->setFlash(__('Could not connect to database.'));
             } else {
 				list(,$database) = explode('/', $db->config['datasource']);
-				
-                $this->__executeSQLScript($db, APP . 'Config' . DS.'sql'.DS.strtolower($database).'.sql');
-                $this->__updateData(); //translate names
-                $this->redirect(array('action' => 'finish'));
-                exit();
+
+                // rename database.php.install
+                copy(APP . 'Config' . DS.'sql'.DS.strtolower($database).'.sql.install', APP . 'Config' . DS.'sql'.DS.strtolower($database).'.sql');
+
+                // open sql script file
+                App::uses('File', 'Utility');
+                $file = new File(APP . 'Config' . DS.'sql'.DS.strtolower($database).'.sql', true);
+                $content = $file->read();
+
+				$fields = get_class_vars('DATABASE_CONFIG');
+
+				$table_prefix = $fields['default']['prefix'];
+
+                // write to sql script file
+                $content = str_replace('{prefix}', $table_prefix, $content);
+
+                if($file->write($content) ) {
+					$this->__executeSQLScript($db, APP . 'Config' . DS.'sql'.DS.strtolower($database).'.sql');
+					$this->__updateData(); //translate names
+					$this->redirect(array('action' => 'finish'));
+					exit();
+                } else {
+                    $this->Session->setFlash(__('Could not write' . strtolower($database).'.sql' . ' file.'));
+                }
+
+
             }
         }
     }
@@ -202,6 +218,7 @@ class CcInstallController extends CcInstallAppController {
                 $db->query($statement);
             }
         }
+        Cache::clear(false, '_cake_model_');
     }
 
     function __updateData(){
@@ -215,7 +232,7 @@ class CcInstallController extends CcInstallAppController {
                 6 => __('Urgent'),
                 7 => __('Immediate'),
                 8 => __('Design'),
-                9 => __('Development')                
+                9 => __('Development')
             ),
             'IssueStatus' => array(
                 1 => __('New'),
@@ -223,17 +240,17 @@ class CcInstallController extends CcInstallAppController {
                 3 => __('Resolved'),
                 4 => __('Feedback'),
                 5 => __('Closed'),
-                6 => __('Rejected')                
+                6 => __('Rejected')
             ),
             'Role' => array(
                 3 => __('Manager'),
                 4 => __('Developer'),
-                5 => __('Reporter')                
+                5 => __('Reporter')
             ),
             'Tracker' => array(
                 1 => __('Bug'),
                 2 => __('Feature'),
-                3 => __('Support')                
+                3 => __('Support')
             )
         );
         foreach ($data as $model_name => $map) {
@@ -242,9 +259,9 @@ class CcInstallController extends CcInstallAppController {
             foreach ($map as $id => $name) {
                 $obj->id = $id;
                 $obj->saveField('name',$name);
-            }            
+            }
         }
-        
+
     }
 }
 ?>
